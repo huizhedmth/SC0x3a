@@ -1,0 +1,71 @@
+# reference: ~cs58/yalnix/sample/Makefile, Sean W. Smith, Dartmouth College
+
+
+
+ALL = $(KERNEL_ALL) $(USER_APPS)
+KERNEL_ALL = yalnix
+
+KERNEL_SRCS = 
+
+KERNEL_OBJS = 
+
+KERNEL_INCS = 
+
+
+USER_APPS = idle torture exec test_syscall test_pipe test_sem test_mem cp5_test cp6_test test_cvar
+
+USER_SRCS = idle.c torture.c exec.c test_syscall.c test_pipe.c test_sem.c test_mem.c cp5_test.c cp6_test.c test_cvar.c
+
+USER_OBJS = idle.o torture.o exec.o test_syscall.o test_pipe.o test_sem.o test_mem.o cp5_test.o cp6_test.o test_cvar.o
+
+USER_INCS = 
+
+YALNIX_OUTPUT = yalnix
+
+CC = gcc
+
+DDIR58 = /net/class/cs58/yalnix
+LIBDIR = $(DDIR58)/lib
+INCDIR = $(DDIR58)/include
+ETCDIR = $(DDIR58)/etc
+
+LD_EXTRA = 
+
+KERNEL_LIBS = $(LIBDIR)/libkernel.a $(LIBDIR)/libhardware.so
+
+KERNEL_LDFLAGS = $(LD_EXTRA) -L$(LIBDIR) -lkernel -lelf -Wl,-T,$(ETCDIR)/kernel.x -Wl,-R$(LIBDIR) -lhardware
+LINK_KERNEL = $(LINK.c)
+
+USER_LIBS = $(LIBDIR)/libuser.a
+ASFLAGS = -D__ASM__
+CPPFLAGS= -m32 -fno-builtin -I. -I$(INCDIR) -g -DLINUX 
+
+all: $(ALL)	
+
+clean:
+	rm -f *.o *~ TTYLOG* TRACE $(YALNIX_OUTPUT) $(USER_APPS)
+
+count:
+	wc $(KERNEL_SRCS) $(USER_SRCS)
+
+list:
+	ls -l *.c *.h
+
+kill:
+	killall yalnixtty yalnixnet yalnix
+
+$(KERNEL_ALL): $(KERNEL_OBJS) $(KERNEL_LIBS) $(KERNEL_INCS)
+	$(LINK_KERNEL) -o $@ $(KERNEL_OBJS) $(KERNEL_LDFLAGS)
+
+$(USER_APPS): $(USER_OBJS) $(USER_INCS)
+	$(ETCDIR)/yuserbuild.sh $@ $(DDIR58) $@.o
+
+
+
+
+
+
+
+
+
+
